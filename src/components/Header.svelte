@@ -1,13 +1,13 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import type { TopAppBarComponentDev } from '@smui/top-app-bar';
 	import TopAppBar, { Row, Section, Title, AutoAdjust } from '@smui/top-app-bar';
 	import IconButton from '@smui/icon-button';
-    import { config } from '../config';
+	import { config } from '../config';
 
-    export let drawerOpen = false;
+	export let drawerOpen = false;
 
-    let darkTheme: boolean;
+	let darkTheme: boolean;
 	let topAppBar: TopAppBarComponentDev;
 
 	$: modeLabel = `switch to ${darkTheme ? 'light' : 'dark'} mode`;
@@ -19,7 +19,7 @@ import { onMount } from 'svelte';
 		darkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
 	});
 	const toggleMode = () => {
-        drawerOpen = false;
+		drawerOpen = false;
 		darkTheme = !darkTheme;
 	};
 </script>
@@ -46,12 +46,12 @@ import { onMount } from 'svelte';
 
 <TopAppBar bind:this={topAppBar} variant="fixed">
 	<Row>
-        <Section>
+		<Section>
 			<a href={config.url}>
 				<img src={config.logo} alt="logo" class="logo" />
 			</a>
 			<Title>{config.title}</Title>
-        </Section>
+		</Section>
 		<Section align="end" toolbar>
 			<IconButton
 				aria-label={modeLabel}
@@ -61,7 +61,7 @@ import { onMount } from 'svelte';
 			>
 				{modeIcon}
 			</IconButton>
-            <IconButton class="material-icons" on:click={() => (drawerOpen = !drawerOpen)}>
+			<IconButton class="material-icons" on:click={() => (drawerOpen = !drawerOpen)}>
 				{#if !drawerOpen}
 					menu
 				{:else}
@@ -74,8 +74,8 @@ import { onMount } from 'svelte';
 <AutoAdjust {topAppBar} />
 
 <style>
-.logo {
+	.logo {
 		height: 48px;
-        background-color: white;
+		background-color: white;
 	}
 </style>
