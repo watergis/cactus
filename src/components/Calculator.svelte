@@ -10,7 +10,7 @@
 	} from '$lib/helpers/index';
 	import YearSelector from './YearSelector.svelte';
 	import type { WorldBankIndicator } from '$lib/interfaces';
-    import { toNumber } from "number-string";
+	import { toNumber } from 'number-string';
 
 	let countries: Country[];
 	let currencies: Currency[];
@@ -24,12 +24,12 @@
 	let pppValue: number | undefined;
 	let cpiSourceValue: number | undefined;
 	let cpiTargetValue: number | undefined;
-    let reportedCost: number | undefined;
-    let eacValue: number | undefined;
-    let normarisedEacValue: number | undefined
-    let costTypes = ['CapEx', 'OpEx']
-    let selectedCostType : 'CapEx' | 'OpEx' = 'CapEx'
-    let lifetime: number | undefined = 30
+	let reportedCost: number | undefined;
+	let eacValue: number | undefined;
+	let normarisedEacValue: number | undefined;
+	let costTypes = ['CapEx', 'OpEx'];
+	let selectedCostType: 'CapEx' | 'OpEx' = 'CapEx';
+	let lifetime: number | undefined = 30;
 
 	onMount(async () => {
 		countries = await getCountries();
@@ -84,198 +84,225 @@
 		);
 	}
 
-    $: {
-        if (reportedCost) {
-            try {
-                reportedCost = toNumber(reportedCost)
-                if (selectedCostType === 'CapEx') {
-                    if (lifetime) {
-                        lifetime = toNumber(lifetime)
-                        const discountRate = 0.05
-                        eacValue = reportedCost*(discountRate*((1+discountRate)**lifetime))/(((1+discountRate)**lifetime)-1)
-                    }
-                } else {
-                    eacValue = reportedCost
-                }
-            } catch(err){
-                eacValue = undefined
-            }
-            
-        }
-    }
+	$: {
+		if (reportedCost) {
+			try {
+				reportedCost = toNumber(reportedCost);
+				if (selectedCostType === 'CapEx') {
+					if (lifetime) {
+						lifetime = toNumber(lifetime);
+						const discountRate = 0.05;
+						eacValue =
+							(reportedCost * (discountRate * (1 + discountRate) ** lifetime)) /
+							((1 + discountRate) ** lifetime - 1);
+					}
+				} else {
+					eacValue = reportedCost;
+				}
+			} catch (err) {
+				eacValue = undefined;
+			}
+		}
+	}
 
-    $: if (eacValue && pppValue && cpiSourceValue && cpiTargetValue) {
-        try {
-            eacValue = toNumber(eacValue)
-            normarisedEacValue = eacValue / pppValue * (cpiTargetValue/cpiSourceValue)
-        } catch(err){
-            normarisedEacValue = undefined
-        }
-    }
+	$: if (eacValue && pppValue && cpiSourceValue && cpiTargetValue) {
+		try {
+			eacValue = toNumber(eacValue);
+			normarisedEacValue = (eacValue / pppValue) * (cpiTargetValue / cpiSourceValue);
+		} catch (err) {
+			normarisedEacValue = undefined;
+		}
+	}
 </script>
 
 <div class="calculator-content">
-<h1 class="title">TACH Calculator</h1>
-<div class="content is-medium">
-    <div class="columns is-vcentered">
-        <div class="column is-3">
-            <p class="subtitle is-6">Cost</p>
-        </div>
-        <div class="column is-5">
-            <input class="input is-primary is-small" type="text" placeholder="Reported cost" bind:value={reportedCost} />
-        </div>
-    </div>
-    {#if currencies && currencies.length}
+	<h1 class="title">TACH Calculator</h1>
+	<div class="content is-medium">
 		<div class="columns is-vcentered">
 			<div class="column is-3">
-				<p class="subtitle is-6">Currency</p>
+				<p class="subtitle is-6">Cost</p>
+			</div>
+			<div class="column is-5">
+				<input
+					class="input is-primary is-small"
+					type="text"
+					placeholder="Reported cost"
+					bind:value={reportedCost}
+				/>
+			</div>
+		</div>
+		{#if currencies && currencies.length}
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">Currency</p>
+				</div>
+				<div class="column is-5">
+					<div class="select is-primary is-small">
+						<select bind:value={selectedCurrencyCode}>
+							{#each currencies as currency}
+								<option value={currency.code}>{`${currency.name} (${currency.code})`}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+			</div>
+		{/if}
+		{#if countriesByCurrency && countriesByCurrency.length}
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">Country</p>
+				</div>
+				<div class="column is-5">
+					<div class="select is-primary is-small">
+						<select bind:value={selectedCountryCode}>
+							{#each countriesByCurrency as country}
+								<option value={country.id}>{`${country.name} (${country.id})`}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+			</div>
+		{/if}
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">Cost type</p>
 			</div>
 			<div class="column is-5">
 				<div class="select is-primary is-small">
-					<select bind:value={selectedCurrencyCode}>
-						{#each currencies as currency}
-							<option value={currency.code}>{`${currency.name} (${currency.code})`}</option>
+					<select bind:value={selectedCostType}>
+						{#each costTypes as costType}
+							<option value={costType}>{`${costType}`}</option>
 						{/each}
 					</select>
 				</div>
 			</div>
 		</div>
-	{/if}
-    {#if countriesByCurrency && countriesByCurrency.length}
-		<div class="columns is-vcentered">
-			<div class="column is-3">
-				<p class="subtitle is-6">Country</p>
-			</div>
-			<div class="column is-5">
-				<div class="select is-primary is-small">
-					<select bind:value={selectedCountryCode}>
-						{#each countriesByCurrency as country}
-							<option value={country.id}>{`${country.name} (${country.id})`}</option>
-						{/each}
-					</select>
+		{#if selectedCostType === 'CapEx'}
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">Lifetime (year)</p>
+				</div>
+				<div class="column is-5">
+					<input
+						class="input is-primary is-small"
+						type="text"
+						placeholder="Lifetime"
+						bind:value={lifetime}
+					/>
 				</div>
 			</div>
+		{/if}
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">Year purchased</p>
+			</div>
+			<div class="column is-2">
+				<YearSelector bind:selectedYear={selectedSourceYear} />
+			</div>
 		</div>
-	{/if}
-    <div class="columns is-vcentered">
-        <div class="column is-3">
-            <p class="subtitle is-6">Cost type</p>
-        </div>
-        <div class="column is-5">
-            <div class="select is-primary is-small">
-                <select bind:value={selectedCostType}>
-                    {#each costTypes as costType}
-                        <option value={costType}>{`${costType}`}</option>
-                    {/each}
-                </select>
-            </div>
-        </div>
-    </div>
-    {#if selectedCostType === 'CapEx'}
-    <div class="columns is-vcentered">
-        <div class="column is-3">
-            <p class="subtitle is-6">Lifetime (year)</p>
-        </div>
-        <div class="column is-5">
-            <input class="input is-primary is-small" type="text" placeholder="Lifetime" bind:value={lifetime} />
-        </div>
-    </div>
-    {/if}
-    <div class="columns is-vcentered">
-		<div class="column is-3">
-			<p class="subtitle is-6">Year purchased</p>
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">Annual cost</p>
+			</div>
+			<div class="column is-5">
+				<input
+					class="input is-secondary is-small"
+					type="text"
+					placeholder="Annualised cost"
+					bind:value={eacValue}
+					readonly
+				/>
+			</div>
 		</div>
-		<div class="column is-2">
-			<YearSelector bind:selectedYear={selectedSourceYear} />
+		<hr />
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">Year converted to</p>
+			</div>
+			<div class="column is-2">
+				<YearSelector bind:selectedYear={selectedTargetYear} />
+			</div>
 		</div>
-    </div>
-    <div class="columns is-vcentered">
-        <div class="column is-3">
-            <p class="subtitle is-6">Annual cost</p>
-        </div>
-        <div class="column is-5">
-            <input class="input is-secondary is-small" type="text" placeholder="Annualised cost" bind:value={eacValue} readonly />
-        </div>
-    </div>
-    <hr>
-    <div class="columns is-vcentered">
-		<div class="column is-3">
-			<p class="subtitle is-6">Year converted to</p>
+		{#if selectedCountryCode && selectedTargetYear}
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">{`PPP-${selectedCountryCode}/US-${selectedTargetYear}`}</p>
+				</div>
+				<div class="column is-5">
+					<input
+						class="input is-secondary is-small"
+						type="text"
+						placeholder="PPP value"
+						bind:value={pppValue}
+						readonly
+					/>
+				</div>
+			</div>
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">{`CPI-${selectedCountryCode}-${selectedTargetYear}`}</p>
+				</div>
+				<div class="column is-5">
+					<input
+						class="input is-secondary is-small"
+						type="text"
+						placeholder="CPI target value"
+						bind:value={cpiTargetValue}
+						readonly
+					/>
+				</div>
+			</div>
+		{/if}
+		{#if selectedCountryCode && selectedSourceYear}
+			<div class="columns is-vcentered">
+				<div class="column is-3">
+					<p class="subtitle is-6">{`CPI-${selectedCountryCode}-${selectedSourceYear}`}</p>
+				</div>
+				<div class="column is-5">
+					<input
+						class="input is-secondary is-small"
+						type="text"
+						placeholder="CPI source value"
+						bind:value={cpiSourceValue}
+						readonly
+					/>
+				</div>
+			</div>
+		{/if}
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">{`US$${selectedTargetYear}`}</p>
+			</div>
+			<div class="column is-5">
+				<input
+					class="input is-secondary is-small"
+					type="text"
+					placeholder="Output value"
+					bind:value={normarisedEacValue}
+				/>
+			</div>
 		</div>
-		<div class="column is-2">
-			<YearSelector bind:selectedYear={selectedTargetYear} />
-		</div>
+		<hr />
+		<h1 class="title is-4">References</h1>
+		<ol>
+			<li>
+				<a href="http://dx.doi.org/10.2166/washdev.2020.093" target="”_blank”">
+					<p>
+						Sainati, T., Zakaria, F., Locatelli, G., Sleigh, P.A. and Evans, B. 2020. Understanding
+						the costs of urban sanitation: Towards a standard costing model. Journal of Water
+						Sanitation and Hygiene for Development. 10(4), pp.642–658.
+					</p>
+				</a>
+			</li>
+		</ol>
 	</div>
-	{#if selectedCountryCode && selectedTargetYear}
-		<div class="columns is-vcentered">
-			<div class="column is-3">
-				<p class="subtitle is-6">{`PPP-${selectedCountryCode}/US-${selectedTargetYear}`}</p>
-			</div>
-			<div class="column is-5">
-				<input
-					class="input is-secondary is-small"
-					type="text"
-					placeholder="PPP value"
-					bind:value={pppValue}
-					readonly
-				/>
-			</div>
-		</div>
-		<div class="columns is-vcentered">
-			<div class="column is-3">
-				<p class="subtitle is-6">{`CPI-${selectedCountryCode}-${selectedTargetYear}`}</p>
-			</div>
-			<div class="column is-5">
-				<input
-					class="input is-secondary is-small"
-					type="text"
-					placeholder="CPI target value"
-					bind:value={cpiTargetValue}
-					readonly
-				/>
-			</div>
-		</div>
-	{/if}
-	{#if selectedCountryCode && selectedSourceYear}
-		<div class="columns is-vcentered">
-			<div class="column is-3">
-				<p class="subtitle is-6">{`CPI-${selectedCountryCode}-${selectedSourceYear}`}</p>
-			</div>
-			<div class="column is-5">
-				<input
-					class="input is-secondary is-small"
-					type="text"
-					placeholder="CPI source value"
-					bind:value={cpiSourceValue}
-					readonly
-				/>
-			</div>
-		</div>
-	{/if}
-    <div class="columns is-vcentered">
-        <div class="column is-3">
-            <p class="subtitle is-6">{`US$${selectedTargetYear}`}</p>
-        </div>
-    <div class="column is-5">
-        <input class="input is-secondary is-small" type="text" placeholder="Output value" bind:value={normarisedEacValue} />
-    </div>
-    </div>
-    <hr>
-        <h1 class="title is-4">References</h1>
-        <ol>
-            <li>
-                <a href="http://dx.doi.org/10.2166/washdev.2020.093" target="”_blank”">
-                    <p>Sainati, T., Zakaria, F., Locatelli, G., Sleigh, P.A. and Evans, B. 2020. Understanding the costs of urban sanitation: Towards a standard costing model. Journal of Water Sanitation and Hygiene for Development. 10(4), pp.642–658.</p>
-                    </a>
-            </li>
-        </ol>
 </div>
-</div>
-<style lang="scss">
-    $height: calc(100vh - 128px);
 
-    .calculator-content{
-        height: $height;
-        overflow-y: scroll;
-    }
+<style lang="scss">
+	$height: calc(100vh - 128px);
+
+	.calculator-content {
+		height: $height;
+		overflow-y: scroll;
+	}
 </style>
