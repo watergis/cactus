@@ -16,7 +16,7 @@ const config = {
 		}),
 		paths: {
 			// YOUR github repository name
-			base: process.env.NODE_ENV === 'production' ? '/tach-calc' : ''
+			base: process.env.NODE_ENV === 'production' ? '/cactus' : ''
 		},
 		prerender: {
 			default: true

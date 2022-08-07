@@ -51,7 +51,7 @@
 </div>
 
 <style lang="scss">
-	$height: calc(100vh - 64px);
+	$height: calc(100vh - 128px);
 
 	@media (max-width: 768px) {
 		$height: calc(100vh - 184px);
