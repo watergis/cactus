@@ -47,10 +47,17 @@
 <TopAppBar bind:this={topAppBar} variant="fixed">
 	<Row>
 		<Section>
-			<a href={config.url}>
+			<IconButton class="material-icons" on:click={() => (drawerOpen = !drawerOpen)}>
+				{#if !drawerOpen}
+					menu
+				{:else}
+					close
+				{/if}
+			</IconButton>
+			<a href="http://cactuscosting.com">
 				<img src={config.logo} alt="logo" class="logo" />
 			</a>
-			<Title>{config.title}</Title>
+			<Title>CACTUS project</Title>
 		</Section>
 		<Section align="end" toolbar>
 			<IconButton
@@ -60,13 +67,6 @@
 				title={modeLabel}
 			>
 				{modeIcon}
-			</IconButton>
-			<IconButton class="material-icons" on:click={() => (drawerOpen = !drawerOpen)}>
-				{#if !drawerOpen}
-					menu
-				{:else}
-					close
-				{/if}
 			</IconButton>
 		</Section>
 	</Row>
