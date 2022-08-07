@@ -6,7 +6,7 @@
 	let years = new NumericRange(1960, currentYear).enumerate().reverse();
 </script>
 
-<div class="select is-primary is-small">
+<div class="select is-primary is-medium">
 	<select bind:value={selectedYear}>
 		{#each years as year}
 			<option value={year}>{`${year}`}</option>

@@ -12,10 +12,11 @@
 	import type { WorldBankIndicator } from '$lib/interfaces';
 	import { toNumber } from 'number-string';
 	import Slider from '@smui/slider';
+	import AutoComplete from 'simple-svelte-autocomplete';
 
 	let countries: Country[];
 	let currencies: Currency[];
-	let selectedCurrencyCode: string;
+	let selectedCurrency: Currency;
 	let countriesByCurrency: Country[];
 	let selectedCountryCode: string;
 
@@ -39,8 +40,8 @@
 	});
 
 	$: {
-		if (selectedCurrencyCode) {
-			const currency = currencies.find((currency) => selectedCurrencyCode === currency.code);
+		if (selectedCurrency) {
+			const currency = currencies.find((currency) => selectedCurrency.code === currency.code);
 			countriesByCurrency = [];
 			currency?.iso3.forEach((iso) => {
 				const country = countries.find((data) => data.id === iso);
@@ -121,11 +122,11 @@
 	<div class="content is-medium">
 		<div class="columns is-vcentered">
 			<div class="column is-3">
-				<p class="subtitle is-6">Cost</p>
+				<p class="subtitle is-6">Cost {selectedCurrency ? `(${selectedCurrency.code})` : ''}</p>
 			</div>
 			<div class="column is-5">
 				<input
-					class="input is-primary is-small"
+					class="input is-primary is-medium"
 					type="text"
 					placeholder="Reported cost"
 					bind:value={reportedCost}
@@ -138,13 +139,15 @@
 					<p class="subtitle is-6">Currency</p>
 				</div>
 				<div class="column is-5">
-					<div class="select is-primary is-small">
-						<select bind:value={selectedCurrencyCode}>
-							{#each currencies as currency}
-								<option value={currency.code}>{`${currency.name} (${currency.code})`}</option>
-							{/each}
-						</select>
-					</div>
+					<AutoComplete
+						items={currencies}
+						bind:selectedItem={selectedCurrency}
+						placeholder="Select currency"
+						showClear={true}
+						showLoadingIndicator={true}
+						labelFunction={(properties) =>
+							properties ? `${properties.name} (${properties.code})` : ''}
+					/>
 				</div>
 			</div>
 		{/if}
@@ -154,7 +157,7 @@
 					<p class="subtitle is-6">Country</p>
 				</div>
 				<div class="column is-5">
-					<div class="select is-primary is-small">
+					<div class="select is-primary is-medium">
 						<select bind:value={selectedCountryCode}>
 							{#each countriesByCurrency as country}
 								<option value={country.id}>{`${country.name} (${country.id})`}</option>
@@ -169,7 +172,7 @@
 				<p class="subtitle is-6">Cost type</p>
 			</div>
 			<div class="column is-5">
-				<div class="select is-primary is-small">
+				<div class="select is-primary is-medium">
 					<select bind:value={selectedCostType}>
 						{#each costTypes as costType}
 							<option value={costType}>{`${costType}`}</option>
@@ -185,7 +188,7 @@
 				</div>
 				<div class="column is-5">
 					<input
-						class="input is-primary is-small"
+						class="input is-primary is-medium"
 						type="text"
 						placeholder="Lifetime"
 						bind:value={lifetime}
@@ -197,7 +200,7 @@
 			<div class="column is-3">
 				<p class="subtitle is-6">Year purchased</p>
 			</div>
-			<div class="column is-2">
+			<div class="column is-3">
 				<YearSelector bind:selectedYear={selectedSourceYear} />
 			</div>
 		</div>
@@ -219,11 +222,13 @@
 		</div>
 		<div class="columns is-vcentered">
 			<div class="column is-3">
-				<p class="subtitle is-6">Annual cost</p>
+				<p class="subtitle is-6">
+					Annual cost {selectedCurrency ? `(${selectedCurrency.code})` : ''}
+				</p>
 			</div>
 			<div class="column is-5">
 				<input
-					class="input is-secondary is-small"
+					class="input is-secondary is-medium"
 					type="text"
 					placeholder="Annualised cost"
 					bind:value={eacValue}
@@ -236,7 +241,7 @@
 			<div class="column is-3">
 				<p class="subtitle is-6">Year converted to</p>
 			</div>
-			<div class="column is-2">
+			<div class="column is-3">
 				<YearSelector bind:selectedYear={selectedTargetYear} />
 			</div>
 		</div>
@@ -247,7 +252,7 @@
 				</div>
 				<div class="column is-5">
 					<input
-						class="input is-secondary is-small"
+						class="input is-secondary is-medium"
 						type="text"
 						placeholder="PPP value"
 						bind:value={pppValue}
@@ -261,7 +266,7 @@
 				</div>
 				<div class="column is-5">
 					<input
-						class="input is-secondary is-small"
+						class="input is-secondary is-medium"
 						type="text"
 						placeholder="CPI target value"
 						bind:value={cpiTargetValue}
@@ -277,7 +282,7 @@
 				</div>
 				<div class="column is-5">
 					<input
-						class="input is-secondary is-small"
+						class="input is-secondary is-medium"
 						type="text"
 						placeholder="CPI source value"
 						bind:value={cpiSourceValue}
@@ -292,7 +297,7 @@
 			</div>
 			<div class="column is-5">
 				<input
-					class="input is-secondary is-small"
+					class="input is-secondary is-medium"
 					type="text"
 					placeholder="Output value"
 					bind:value={normarisedEacValue}
@@ -321,5 +326,27 @@
 	.calculator-content {
 		height: $height;
 		overflow-y: scroll;
+	}
+
+	:global(.autocomplete) {
+		width: 100%;
+	}
+
+	:global(.autocomplete-input) {
+		background-color: #fff;
+		border: 1px solid #ccc;
+		box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
+		color: #4a4a4a;
+		font-family: ProximaNova, sans-serif;
+		font-size: 11px;
+		height: 50px !important;
+	}
+
+	:global(.autocomplete-list) {
+		top: 5px !important;
+		background-color: #fff;
+		border-radius: 10px;
+		border: 1px solid #ccc;
+		box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
 	}
 </style>
