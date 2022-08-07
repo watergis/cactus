@@ -36,11 +36,13 @@
 	<AppContent class="app-content">
 		<main class="main-content">
 			{#if active === 'Home'}
-				<h1>Welcome to CACTUS project</h1>
-				<p>
-					This is the third party website to manage some tools for the project. Please also visit
-					the official website <a href="http://cactuscosting.com" target="”_blank”">here</a>
-				</p>
+				<h1 class="title">Welcome to CACTUS project</h1>
+				<div class="content is-medium">
+					<p>
+						This is the third party website to manage some tools for the project. Please also visit
+						the official website <a href="http://cactuscosting.com" target="”_blank”">here</a>
+					</p>
+				</div>
 			{:else if active === 'TACH calculator'}
 				<Calculator />
 			{/if}

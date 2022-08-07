@@ -7,3 +7,7 @@
 
 <Header bind:drawerOpen />
 <Contents bind:drawerOpen />
+
+<style lang="scss">
+	@import 'bulma/css/bulma.css';
+</style>
