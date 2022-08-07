@@ -11,6 +11,7 @@
 	import YearSelector from './YearSelector.svelte';
 	import type { WorldBankIndicator } from '$lib/interfaces';
 	import { toNumber } from 'number-string';
+	import Slider from '@smui/slider';
 
 	let countries: Country[];
 	let currencies: Currency[];
@@ -30,6 +31,7 @@
 	let costTypes = ['CapEx', 'OpEx'];
 	let selectedCostType: 'CapEx' | 'OpEx' = 'CapEx';
 	let lifetime: number | undefined = 30;
+	let discountRate = 5;
 
 	onMount(async () => {
 		countries = await getCountries();
@@ -91,10 +93,9 @@
 				if (selectedCostType === 'CapEx') {
 					if (lifetime) {
 						lifetime = toNumber(lifetime);
-						const discountRate = 0.05;
+						const rate = discountRate === 0 ? 0 : discountRate / 100;
 						eacValue =
-							(reportedCost * (discountRate * (1 + discountRate) ** lifetime)) /
-							((1 + discountRate) ** lifetime - 1);
+							(reportedCost * (rate * (1 + rate) ** lifetime)) / ((1 + rate) ** lifetime - 1);
 					}
 				} else {
 					eacValue = reportedCost;
@@ -198,6 +199,22 @@
 			</div>
 			<div class="column is-2">
 				<YearSelector bind:selectedYear={selectedSourceYear} />
+			</div>
+		</div>
+		<div class="columns is-vcentered">
+			<div class="column is-3">
+				<p class="subtitle is-6">Discount rate: {discountRate}%</p>
+			</div>
+			<div class="column is-5">
+				<Slider
+					bind:value={discountRate}
+					min={0}
+					max={100}
+					step={0.5}
+					discrete
+					tickMarks
+					input$aria-label="Discrete slider"
+				/>
 			</div>
 		</div>
 		<div class="columns is-vcentered">
