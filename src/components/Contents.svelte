@@ -2,10 +2,11 @@
 	import Drawer, { AppContent, Content } from '@smui/drawer';
 	import List, { Item, Text, Graphic } from '@smui/list';
 	import Calculator from './Calculator.svelte';
+	import DataTable from './DataTable.svelte';
 
 	export let drawerOpen = false;
 
-	let active: 'Home' | 'TACH calculator' = 'Home';
+	let active: 'Home' | 'Data' | 'TACH calculator' = 'Home';
 </script>
 
 <div class="drawer-container">
@@ -20,6 +21,15 @@
 				>
 					<Graphic class="material-icons" aria-hidden="true">home</Graphic>
 					<Text>Home</Text>
+				</Item>
+				<Item
+					on:click={() => {
+						active = 'Data';
+					}}
+					activated={active === 'Data'}
+				>
+					<Graphic class="material-icons" aria-hidden="true">assessment</Graphic>
+					<Text>Data</Text>
 				</Item>
 				<Item
 					on:click={() => {
@@ -43,6 +53,8 @@
 						the official website <a href="http://cactuscosting.com" target="”_blank”">here</a>
 					</p>
 				</div>
+			{:else if active === 'Data'}
+				<DataTable />
 			{:else if active === 'TACH calculator'}
 				<Calculator />
 			{/if}
