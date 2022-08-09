@@ -124,18 +124,22 @@
 	});
 </script>
 
-<div class="datatable-content">
-	<Grid
-		bind:data={tableData}
-		{columns}
-		{style}
-		pagination={true}
-		search={true}
-		sort={true}
-		resizable={false}
-	/>
+<div class="datatable-content columns">
+	<div class="column">
+		<Grid
+			bind:data={tableData}
+			{columns}
+			{style}
+			pagination={true}
+			search={true}
+			sort={true}
+			resizable={false}
+		/>
 
-	<p>Hole <span class="tag is-primary">Shift</span> key to sort by multiple columns</p>
+		<p class="subtitle is-5">
+			Hole <span class="tag is-primary">Shift</span> key to sort by multiple columns
+		</p>
+	</div>
 </div>
 
 <style lang="scss">
