@@ -1,12 +1,43 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Drawer, { AppContent, Content } from '@smui/drawer';
 	import List, { Item, Text, Graphic } from '@smui/list';
 	import Calculator from './Calculator.svelte';
 	import DataTable from './DataTable.svelte';
+	import Map from './Map.svelte';
+	import { page } from '$app/stores';
 
 	export let drawerOpen = false;
 
-	let active: 'Home' | 'Data' | 'TACH calculator' = 'Home';
+	let active: 'Home' | 'Data' | 'TACH calculator' | 'Map';
+
+	let _location: Location;
+
+	onMount(() => {
+		_location = location;
+		const menu = $page.url.searchParams.get('menu');
+		if (!menu) {
+			active = 'Home';
+		} else {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			active = menu;
+		}
+	});
+
+	const setMenu = (menu: 'Home' | 'Data' | 'TACH calculator' | 'Map') => {
+		active = menu;
+		$page.url.searchParams.set('menu', menu);
+		history.replaceState('', '', $page.url.toString());
+	};
+
+	$: drawerOpen, resizeMap();
+	const resizeMap = () => {
+		if (!_location) return;
+		if (!drawerOpen && active === 'Map') {
+			_location.reload();
+		}
+	};
 </script>
 
 <div class="drawer-container">
@@ -15,7 +46,7 @@
 			<List>
 				<Item
 					on:click={() => {
-						active = 'Home';
+						setMenu('Home');
 					}}
 					activated={active === 'Home'}
 				>
@@ -24,7 +55,16 @@
 				</Item>
 				<Item
 					on:click={() => {
-						active = 'Data';
+						setMenu('Map');
+					}}
+					activated={active === 'Map'}
+				>
+					<Graphic class="material-icons" aria-hidden="true">map</Graphic>
+					<Text>Map</Text>
+				</Item>
+				<Item
+					on:click={() => {
+						setMenu('Data');
 					}}
 					activated={active === 'Data'}
 				>
@@ -33,7 +73,7 @@
 				</Item>
 				<Item
 					on:click={() => {
-						active = 'TACH calculator';
+						setMenu('TACH calculator');
 					}}
 					activated={active === 'TACH calculator'}
 				>
@@ -44,7 +84,7 @@
 		</Content>
 	</Drawer>
 	<AppContent class="app-content">
-		<main class="main-content">
+		<main class="main-content" style="margin: {active === 'Map' ? '0px' : '15px'}">
 			{#if active === 'Home'}
 				<h1 class="title">Welcome to CACTUS project</h1>
 				<div class="content is-medium">
@@ -53,6 +93,8 @@
 						the official website <a href="http://cactuscosting.com" target="”_blank”">here</a>
 					</p>
 				</div>
+			{:else if active === 'Map'}
+				<Map />
 			{:else if active === 'Data'}
 				<DataTable />
 			{:else if active === 'TACH calculator'}
@@ -63,7 +105,7 @@
 </div>
 
 <style lang="scss">
-	$height: calc(100vh - 128px);
+	$height: calc(100vh - 64px);
 
 	@media (max-width: 768px) {
 		$height: calc(100vh - 184px);
@@ -78,8 +120,8 @@
 
 	.main-content {
 		overflow: auto;
-		padding: 16px;
-		height: 100%;
+		height: $height;
+		width: calc(100vw);
 		box-sizing: border-box;
 	}
 </style>
