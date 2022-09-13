@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Grid from 'gridjs-svelte';
-	import type { CactusData, CactusMasterData, CactusStudyData } from '$lib/interfaces';
+	import type { Row } from 'gridjs';
+	import { RowSelection } from 'gridjs/plugins/selection';
+	import type { CactusMasterData } from '$lib/interfaces';
+	import { cactusStudyData } from '$lib/stores';
+	import { getCactusStudyData } from '$lib/helpers';
 
 	interface MasterConfig {
 		column: string;
@@ -100,15 +104,28 @@
 		}
 	};
 
-	let columns = targets.master.map((t) => t.title);
+	let rowSelection = {
+		id: 'id-checkbox',
+		name: '',
+		plugin: {
+			component: RowSelection,
+			props: {
+				id: (row: Row) => row.cell(1).data
+			}
+		}
+	};
+
+	let columns = [rowSelection, ...targets.master.map((t) => t.title)];
 	let tableData: (string | number)[][] = [];
 
 	onMount(async () => {
-		const res = await fetch('./all_cactus_datapoint_data.json');
-		const json: CactusData = await res.json();
-		const study_data: CactusStudyData[] = json.study_data;
+		if (!$cactusStudyData) {
+			const data = await getCactusStudyData();
+			cactusStudyData.update(() => data);
+		}
+
 		tableData = [];
-		study_data.forEach((study) => {
+		$cactusStudyData.forEach((study) => {
 			let data: (string | number)[] = [];
 			targets.master.forEach((define) => {
 				const value = study.master[define.column as keyof CactusMasterData];
@@ -122,6 +139,10 @@
 			tableData.push(data);
 		});
 	});
+
+	const handleGridReady = () => {
+		// console.log(e);
+	};
 </script>
 
 <div class="datatable-content columns">
@@ -134,6 +155,7 @@
 			search={true}
 			sort={true}
 			resizable={false}
+			on:cellClick={handleGridReady}
 		/>
 
 		<p class="subtitle is-5">

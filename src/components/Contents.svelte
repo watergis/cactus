@@ -3,10 +3,20 @@
 	import List, { Item, Text, Graphic } from '@smui/list';
 	import Calculator from './Calculator.svelte';
 	import DataTable from './DataTable.svelte';
+	import Map from './Map.svelte';
+	import { map } from '$lib/stores';
 
 	export let drawerOpen = false;
 
-	let active: 'Home' | 'Data' | 'TACH calculator' = 'Home';
+	let active: 'Home' | 'Data' | 'TACH calculator' | 'Map' = 'Home';
+
+	$: drawerOpen, resizeMap();
+	const resizeMap = () => {
+		if (!$map) return;
+		$map.triggerRepaint();
+		$map.redraw();
+		$map.resize();
+	};
 </script>
 
 <div class="drawer-container">
@@ -21,6 +31,15 @@
 				>
 					<Graphic class="material-icons" aria-hidden="true">home</Graphic>
 					<Text>Home</Text>
+				</Item>
+				<Item
+					on:click={() => {
+						active = 'Map';
+					}}
+					activated={active === 'Map'}
+				>
+					<Graphic class="material-icons" aria-hidden="true">map</Graphic>
+					<Text>Map</Text>
 				</Item>
 				<Item
 					on:click={() => {
@@ -44,7 +63,7 @@
 		</Content>
 	</Drawer>
 	<AppContent class="app-content">
-		<main class="main-content">
+		<main class="main-content" style="margin: {active === 'Map' ? '0px' : '15px'}">
 			{#if active === 'Home'}
 				<h1 class="title">Welcome to CACTUS project</h1>
 				<div class="content is-medium">
@@ -53,6 +72,8 @@
 						the official website <a href="http://cactuscosting.com" target="”_blank”">here</a>
 					</p>
 				</div>
+			{:else if active === 'Map'}
+				<Map />
 			{:else if active === 'Data'}
 				<DataTable />
 			{:else if active === 'TACH calculator'}
@@ -63,7 +84,7 @@
 </div>
 
 <style lang="scss">
-	$height: calc(100vh - 128px);
+	$height: calc(100vh - 64px);
 
 	@media (max-width: 768px) {
 		$height: calc(100vh - 184px);
@@ -78,8 +99,8 @@
 
 	.main-content {
 		overflow: auto;
-		padding: 16px;
-		height: 100%;
+		height: $height;
+		width: 100%;
 		box-sizing: border-box;
 	}
 </style>

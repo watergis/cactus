@@ -37,6 +37,7 @@
 		"gridjs": "^5.0.2",
 		"gridjs-svelte": "^2.1.1",
 		"husky": "^7.0.0",
+		"maplibre-gl": "^2.4.0",
 		"number-string": "^2.0.1",
 		"numeric-range": "^1.0.4",
 		"prettier": "^2.6.2",
