@@ -1,21 +1,42 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Drawer, { AppContent, Content } from '@smui/drawer';
 	import List, { Item, Text, Graphic } from '@smui/list';
 	import Calculator from './Calculator.svelte';
 	import DataTable from './DataTable.svelte';
 	import Map from './Map.svelte';
-	import { map } from '$lib/stores';
+	import { page } from '$app/stores';
 
 	export let drawerOpen = false;
 
-	let active: 'Home' | 'Data' | 'TACH calculator' | 'Map' = 'Home';
+	let active: 'Home' | 'Data' | 'TACH calculator' | 'Map';
+
+	let _location: Location;
+
+	onMount(() => {
+		_location = location;
+		const menu = $page.url.searchParams.get('menu');
+		if (!menu) {
+			active = 'Home';
+		} else {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
+			active = menu;
+		}
+	});
+
+	const setMenu = (menu: 'Home' | 'Data' | 'TACH calculator' | 'Map') => {
+		active = menu;
+		$page.url.searchParams.set('menu', menu);
+		history.replaceState('', '', $page.url.toString());
+	};
 
 	$: drawerOpen, resizeMap();
 	const resizeMap = () => {
-		if (!$map) return;
-		$map.triggerRepaint();
-		$map.redraw();
-		$map.resize();
+		if (!_location) return;
+		if (!drawerOpen && active === 'Map') {
+			_location.reload();
+		}
 	};
 </script>
 
@@ -25,7 +46,7 @@
 			<List>
 				<Item
 					on:click={() => {
-						active = 'Home';
+						setMenu('Home');
 					}}
 					activated={active === 'Home'}
 				>
@@ -34,7 +55,7 @@
 				</Item>
 				<Item
 					on:click={() => {
-						active = 'Map';
+						setMenu('Map');
 					}}
 					activated={active === 'Map'}
 				>
@@ -43,7 +64,7 @@
 				</Item>
 				<Item
 					on:click={() => {
-						active = 'Data';
+						setMenu('Data');
 					}}
 					activated={active === 'Data'}
 				>
@@ -52,7 +73,7 @@
 				</Item>
 				<Item
 					on:click={() => {
-						active = 'TACH calculator';
+						setMenu('TACH calculator');
 					}}
 					activated={active === 'TACH calculator'}
 				>
@@ -100,7 +121,7 @@
 	.main-content {
 		overflow: auto;
 		height: $height;
-		width: 100%;
+		width: calc(100vw);
 		box-sizing: border-box;
 	}
 </style>

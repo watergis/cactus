@@ -8,8 +8,6 @@
 	let selectedFeature: GeoJSONFeature | undefined;
 
 	$: if ($map) {
-		// if (!$map) return
-
 		$map.on('load', async function () {
 			const geojson = await convert2geojson();
 
