@@ -40,7 +40,7 @@
 				new Popup()
 					.setLngLat(e.lngLat)
 					.setDOMContent(popupContainer)
-					.setMaxWidth('400px')
+					.setMaxWidth('300px')
 					.addTo($map);
 			});
 		});
