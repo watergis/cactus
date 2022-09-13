@@ -2,6 +2,7 @@
 	import { GeoJSONFeature, MapMouseEvent, Popup } from 'maplibre-gl';
 	import { map, cactusStudyData } from '$lib/stores';
 	import { getCactusStudyData } from '$lib/helpers';
+	import { config } from '../config';
 
 	let popupContainer: HTMLDivElement;
 	let clickedFeatures: GeoJSONFeature[] = [];
@@ -13,7 +14,8 @@
 
 			$map.addSource('cactus-data', {
 				type: 'geojson',
-				data: geojson
+				data: geojson,
+				attribution: config.attribution
 			});
 
 			$map.addLayer({
